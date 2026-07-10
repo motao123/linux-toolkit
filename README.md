@@ -15,3 +15,12 @@ bash -c "$(wget -qO - https://github.com/motao123/linux-toolkit/raw/main/network
 ```
 bash -c "$(wget -qO - https://github.com/motao123/linux-toolkit/raw/main/network/bbr/centos7.sh)"
 ```
+
+## System Upgrade
+### Ubuntu LTS (20.04 -> 22.04 -> 24.04)
+```
+wget -O ubuntu.sh https://github.com/motao123/linux-toolkit/raw/main/system-upgrade/ubuntu.sh
+chmod +x ubuntu.sh
+./ubuntu.sh
+```
+Options: `--yes` skip confirmation, `--verify` check result after reboot.
