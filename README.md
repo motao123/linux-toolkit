@@ -23,11 +23,37 @@ bash -c "$(wget -qO - https://github.com/motao123/linux-toolkit/raw/main/network
 
 ---
 
+## Change Docker Registry Mirror / 更换 Docker 镜像加速
+
+Auto-detects whether the host is in mainland China and writes matching `registry-mirrors` to `/etc/docker/daemon.json` (existing config is backed up first). CN mirror list updated 2026-09; public mirrors die frequently, see [dongyubin/DockerHub](https://github.com/dongyubin/DockerHub) for live lists.
+
+自动检测服务器是否在中国大陆，写入对应的 `registry-mirrors` 配置到 `/etc/docker/daemon.json`（已有配置会先备份）。国内镜像源列表更新于 2026-09，公共源失效频繁，可用源列表见 [dongyubin/DockerHub](https://github.com/dongyubin/DockerHub)。
+
+```
+bash -c "$(wget -qO - https://github.com/motao123/linux-toolkit/raw/main/docker/change_mirror.sh)"
+```
+
+---
+
 ## Enable BBR / 启用 BBR
 
 ### For CentOS 7
 ```
 bash -c "$(wget -qO - https://github.com/motao123/linux-toolkit/raw/main/network/bbr/centos7.sh)"
+```
+
+> Note: CentOS 7 reached EOL on 2024-06-30 / 注意：CentOS 7 已于 2024-06-30 停止维护
+
+---
+
+## SSH Keep-Alive / SSH 保活
+
+Sets `ClientAliveInterval 30` / `ClientAliveCountMax 6` in sshd_config and restarts sshd (supports both `ssh`/`sshd` service names).
+
+设置 sshd_config 中的 `ClientAliveInterval 30` / `ClientAliveCountMax 6` 并重启 sshd（兼容 Debian/Ubuntu 的 `ssh` 与 RHEL 系的 `sshd` 服务名）。
+
+```
+bash -c "$(wget -qO - https://github.com/motao123/linux-toolkit/raw/main/network/ssh-server-heartbeat.sh)"
 ```
 
 ---

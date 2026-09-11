@@ -2,20 +2,25 @@
 echo "Begin" >> ~/wikihost_cloudflare_doh_install.log
 download_tool_path=''
 donwload_tool_args=''
-cloudflared_version='2020.11.11'
 arch='amd64'
 
+# 按机器架构选择 cloudflared 二进制
+case "$(uname -m)" in
+    x86_64)  arch='amd64' ;;
+    aarch64) arch='arm64' ;;
+    armv7l|armv6l) arch='arm' ;;
+    *) echo "ERROR: unsupported architecture: $(uname -m)"; exit 1 ;;
+esac
+
 find_download_tool(){
-    type wget &> /dev/null
-    if [ $? -eq 0 ];then
-        download_tool_path=$(which wget --skip-alias)
+    if command -v wget &> /dev/null; then
+        download_tool_path=$(command -v wget)
         donwload_tool_args=' --retry-connrefused --tries=0 -O '
         return
     fi;
 
-    type curl &> /dev/null
-    if [ $? -eq 0 ];then
-        download_tool_path=$(which curl --skip-alias)
+    if command -v curl &> /dev/null; then
+        download_tool_path=$(command -v curl)
         donwload_tool_args=' --retry-connrefused --retry 0 -o '
         return
     fi;
@@ -25,7 +30,8 @@ find_download_tool(){
 }
 
 download_cloudflared(){
-    __run $download_tool_path $donwload_tool_args /tmp/cloudflared https://github.com/cloudflare/cloudflared/releases/download/$cloudflared_version/cloudflared-linux-$arch
+    # 始终拉取最新 release，避免硬编码版本号过期
+    __run $download_tool_path $donwload_tool_args /tmp/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$arch
     mv -f /tmp/cloudflared /usr/local/bin/cloudflared
     chmod +x /usr/local/bin/cloudflared
 }
@@ -62,12 +68,6 @@ __log(){
     echo '['`date '+%Y-%m-%d %H:%M:%S'`']'$1 >> ~/wikihost_cloudflare_doh_install.log
 }
 
-type which &> /dev/null
-if [ $? -ne 0 ];then
-    __log "ERROR: which command not found"
-    exit
-fi;
-
 [ ! -d "/usr/local/bin" ] && __log  "ERROR: /usr/local/bin not exists" && exit
 
 __log "INFO: looking download tools (like curl/wget)..."
@@ -87,5 +87,10 @@ change_resolv_conf
 __log "INFO: Locking /etc/resolv.conf"
 __run chattr +i /etc/resolv.conf
 __log "INFO: Cloudflare dns-over-https has been installed"
-ping -c 1 google.com || (__log "ERROR: Cloudflare dns-over-https not working" && exit)
+# 用 DNS 解析验证 DoH 是否生效（ping 需放行 ICMP，部分机器会误报）
+if command -v getent >/dev/null 2>&1; then
+    getent hosts google.com || (__log "ERROR: Cloudflare dns-over-https not working" && exit)
+else
+    ping -c 1 google.com || (__log "ERROR: Cloudflare dns-over-https not working" && exit)
+fi
 __log "INFO: Cloudflare dns-over-https has been installed and it's working"
