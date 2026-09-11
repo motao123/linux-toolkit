@@ -32,6 +32,24 @@ bash -c "$(wget -qO - https://github.com/motao123/linux-toolkit/raw/main/network
 
 ---
 
+## VPS Small/Big Packet Test / VPS 大小包优化测试
+
+Interactive test that compares small vs. large ICMP packets (latency, loss, mtr route, optional iperf3) to detect provider QoS / "小包优化" on a VPS. Generates a scored report and saves all logs to a local directory.
+
+交互式测试脚本，对比小包/大包的延迟、丢包、mtr 路由及（可选的）iperf3 吞吐，用于检测 VPS 服务商是否存在大小包差异化限速（小包优化/丢包大包），自动生成评分报告并保存原始日志。
+
+```
+wget -O vps_packet_test.sh https://github.com/motao123/linux-toolkit/raw/main/network/vps_packet_test.sh
+chmod +x vps_packet_test.sh
+./vps_packet_test.sh
+```
+
+Dependencies / 依赖: `ping`, `mtr` (`mtr-tiny`), `iperf3` (optional / 可选). macOS: `brew install mtr iperf3`; Debian/Ubuntu: `sudo apt install mtr-tiny iperf3`.
+
+Note / 注意: `mtr` may need root on Linux / Linux 下 mtr 可能需要 root 权限（`sudo ./vps_packet_test.sh`）。
+
+---
+
 ## System Upgrade / 系统升级
 
 One script for both Debian/Ubuntu and CentOS/RHEL (package update + cleanup + reboot check).
